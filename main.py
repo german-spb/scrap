@@ -5,7 +5,7 @@ from pprint import pprint
 import re
 
 
-HOST = 'https://spb.hh.ru/search/vacancy?text=Python+%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA&from=suggest_post&salary=&area=2&ored_clusters=true&enable_snippets=true'
+HOST = 'https://spb.hh.ru/search/vacancy?text=Python&from=suggest_post&area=2'
 def get_headers():
     return Headers(browser='firefox', os='win').generate()
 
@@ -23,8 +23,14 @@ for job in job_div:
     job_adress = job.find(class_='vacancy-serp-item__info')
     job_company = job_adress.find(class_='bloko-text').text # компания
     job_city = job_adress.find(attrs={'class':'bloko-text', 'data-qa':'vacancy-serp__vacancy-address'}).text # город
-    # job_salary = job.find('span', class_ = 'bloko-header-section-3').text # вилка ЗП
-    job_salary = job.find(attrs={'data-qa': 'vacancy-serp__vacancy-compensation', 'class': 'bloko-header-section-3'})
+    job_many = str(job.find('span', class_ = 'bloko-header-section-3')) # вилка ЗП
+    cleanr = re.compile('<.*?>')
+    job_salary = re.sub(cleanr, '', job_many)
+    for b in ['u','2','0','f']:
+        if b in job_salary:
+            job_salary=job_salary.replace(b,' ')
+    # salary = job_salary.replace('u202f','00000')
+
     jobs.append({
         'должность' : job_art,
         'ссылка' : job_link,
