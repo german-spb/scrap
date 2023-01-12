@@ -12,7 +12,6 @@ def get_headers():
 html = requests.get(HOST, headers=get_headers()).text
 
 soup = BeautifulSoup(html, features='lxml')
-# job_divs = soup.find_all(class_='vacancy-serp-content')
 job_div = soup.find_all(class_='vacancy-serp-item__layout')
 
 jobs = []
@@ -21,25 +20,22 @@ for job in job_div:
     link_tag = job.find('a', class_='serp-item__title')
     job_link = link_tag['href'] # сылка
     job_adress = job.find(class_='vacancy-serp-item__info')
-    job_company = job_adress.find(class_='bloko-text').text # компания
+    job_comp = job_adress.find(class_='bloko-text').text # компания
+    job_company = job_comp.replace(u'\xa0', u' ')
     job_city = job_adress.find(attrs={'class':'bloko-text', 'data-qa':'vacancy-serp__vacancy-address'}).text # город
     job_many = str(job.find('span', class_ = 'bloko-header-section-3')) # вилка ЗП
     cleanr = re.compile('<.*?>')
     job_salary = re.sub(cleanr, '', job_many)
-    for b in ['u','2','0','f']:
-        if b in job_salary:
-            job_salary=job_salary.replace(b,' ')
-    # salary = job_salary.replace('u202f','00000')
+    salary = job_salary.replace(u'\u202f', u' ')
 
     jobs.append({
         'должность' : job_art,
         'ссылка' : job_link,
         'компания' : job_company,
         'город' : job_city,
-        'вилка ЗП' : job_salary
+        'вилка ЗП' : salary
         })
 pprint(jobs)
-
 # -------------------------------------------------------------------------------
 # HOST = 'https://habr.com/ru/all/'
 
